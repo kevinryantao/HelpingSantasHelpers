@@ -101,6 +101,8 @@ def solution_firstAvailableElf(toy_file, soln_file, myelves):
 
 if __name__ == '__main__':
 
+    print 'starting Naive Solution'
+
     start = time.time()
 
     NUM_ELVES = 900

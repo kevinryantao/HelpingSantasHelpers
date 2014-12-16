@@ -121,6 +121,8 @@ def score_submission(sub_file, myToys, hrs, NUM_ELVES):
 if __name__ == '__main__':
     """ Evaluation script for Helping Santa's Helpers, the 2014 Kaggle Holiday Optimization Competition. """
 
+    print 'Evaluation script for Helping Santas Helpers, the 2014 Kaggle Holiday Optimization Competition.'
+
     start = time.time()
 
     NUM_TOYS = 10000000
