@@ -58,3 +58,12 @@ class Elf:
         self.rating = max(0.25,
                           min(4.0, self.rating * (self.rating_increase ** (sanctioned/60.0)) *
                               (self.rating_decrease ** (unsanctioned/60.0))))
+
+    def __lt__(self, other):
+        if (isinstance(other, Elf)):
+            if (self.next_available_time == other.next_available_time):
+                return self.id < other.id
+            else:
+                return self.next_available_time < other.next_available_time
+        else:
+            return False

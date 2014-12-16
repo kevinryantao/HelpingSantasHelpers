@@ -56,7 +56,7 @@ if __name__ == '__main__':
     toy_greater_than_2400_count = 0
     max_toy_duration = 0
 
-    for i in xrange(1, NUM_TOYS+1):
+    for i in range(1, NUM_TOYS+1):
         myToy = myToys[str(i)]
         if myToy.duration >= 600:
             toy_greater_than_600_count+=1

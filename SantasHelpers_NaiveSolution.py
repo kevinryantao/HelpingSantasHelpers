@@ -23,7 +23,7 @@ def create_elves(NUM_ELVES):
     :return: list of elves
     """
     list_elves = []
-    for i in xrange(1, NUM_ELVES+1):
+    for i in range(1, NUM_ELVES+1):
         elf = Elf(i)
         heapq.heappush(list_elves, (elf.next_available_time, elf))
     return list_elves
@@ -59,11 +59,11 @@ def solution_firstAvailableElf(toy_file, soln_file, myelves):
     hrs = Hours()
     ref_time = datetime.datetime(2014, 1, 1, 0, 0)
     row_count = 0
-    with open(toy_file, 'rb') as f:
+    with open(toy_file) as f:
         toysfile = csv.reader(f)
-        toysfile.next()  # header row
+        next(toysfile)  # header row
 
-        with open(soln_file, 'wb') as w:
+        with open(soln_file, 'wt') as w:
             wcsv = csv.writer(w)
             wcsv.writerow(['ToyId', 'ElfId', 'StartTime', 'Duration'])
 
@@ -79,8 +79,8 @@ def solution_firstAvailableElf(toy_file, soln_file, myelves):
 
                 # work_start_time cannot be before toy's arrival
                 if work_start_time < current_toy.arrival_minute:
-                    print 'Work_start_time before arrival minute: {0}, {1}'.\
-                        format(work_start_time, current_toy.arrival_minute)
+                    print ('Work_start_time before arrival minute: {0}, {1}'.\
+                        format(work_start_time, current_toy.arrival_minute))
                     exit(-1)
 
                 current_elf.next_available_time, work_duration = \
@@ -101,7 +101,7 @@ def solution_firstAvailableElf(toy_file, soln_file, myelves):
 
 if __name__ == '__main__':
 
-    print 'starting Naive Solution'
+    print ('starting Naive Solution')
 
     start = time.time()
 
@@ -113,4 +113,4 @@ if __name__ == '__main__':
     myelves = create_elves(NUM_ELVES)
     solution_firstAvailableElf(toy_file, soln_file, myelves)
 
-    print 'total runtime = {0}'.format(time.time() - start)
+    print ('total runtime = {0}'.format(time.time() - start))

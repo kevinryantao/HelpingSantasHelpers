@@ -42,7 +42,7 @@ class Hours:
         sanctioned = full_days * self.hours_per_day * 60
         unsanctioned = full_days * (24 - self.hours_per_day) * 60
         remainder_start = start_minute + full_days * self.minutes_in_24h
-        for minute in xrange(remainder_start, start_minute+duration):
+        for minute in range(int(remainder_start), int(start_minute+duration)):
             if self.is_sanctioned_time(minute):
                 sanctioned += 1
             else:
