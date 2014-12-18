@@ -4,7 +4,9 @@ import time
 import math
 import datetime
 
-import matplotlib
+from numpy import *
+import matplotlib.pyplot as plt
+import pandas as pd
 
 from hours import Hours
 from toy import Toy
@@ -37,6 +39,25 @@ def read_toys(toy_file, num_toys):
 
 if __name__ == '__main__':
 
+    """
+    x = arange(0.,10.,0.1) # generate a range of values as an array, using begin, end, step as input
+    y = arange(0.,10.,0.1)
+    ll = plt.plot(x,y) # this is the simplest plotting idiom
+    plt.show()
+
+    print('End program')
+
+    """
+
+    toys = pd.read_csv('toys_rev2.csv')
+    duration = toys['Duration']
+    p = duration.hist(bins=1000)
+    #plt.hist(duration, bins=35)
+    plt.show()
+
+    print('End program')
+
+    """
     print('Beginning data exploration')
 
     start = time.time()
@@ -69,3 +90,4 @@ if __name__ == '__main__':
     print('num toys greater than 2400 : ' + str(toy_greater_than_2400_count))
     print('max duration : ' + str(max_toy_duration))
     print('total time = {0}'.format(time.time() - start))
+    """
