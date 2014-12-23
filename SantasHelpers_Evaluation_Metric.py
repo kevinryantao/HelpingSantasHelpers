@@ -55,7 +55,7 @@ def score_submission(sub_file, myToys, hrs, NUM_ELVES):
         next(fcsv)  # header
         for row in fcsv:
             row_count += 1
-            if row_count % 50000 == 0:
+            if row_count % 500 == 0:
                 print ('Starting toy: {0}'.format(row_count))
 
             current_toy = row[0] 
@@ -93,6 +93,7 @@ def score_submission(sub_file, myToys, hrs, NUM_ELVES):
             # Check toy is complete based on duration and elf productivity
             if not myToys[current_toy].is_complete(start_minute, duration, myElves[current_elf].rating):
                 print('\n ** Toy {0} is not complete'.format(current_toy))
+                print('Duration is ' + str(duration) + '. Elf rating is ' + str(myElves[current_elf].rating) + '. Toy duration is ' + str(myToys[current_toy].duration))
                 exit(-1)
             else:
                 complete_toys.append(int(current_toy))
@@ -132,7 +133,7 @@ if __name__ == '__main__':
     myToys = read_toys(toy_file, NUM_TOYS)
     print(' -- All toys read. Starting to score submission. ')
 
-    sub_file = os.path.join(os.getcwd(), 'sampleSubmission_rev2.csv')
+    sub_file = os.path.join(os.getcwd(), 'kevinSubmission.csv')
     hrs = Hours()
     score_submission(sub_file, myToys, hrs, NUM_ELVES)
 

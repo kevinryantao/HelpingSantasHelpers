@@ -12,6 +12,20 @@ from hours import Hours
 from toy import Toy
 from elf import Elf
 
+"""
+
+    Summary of what I discovered from data exploration:
+
+    The histogram of toys follows : # of toys ~ 1 / duration of toy
+
+    Thus the total amount of time spent building each duration-bin of toys is essentially constant.
+
+    The total amount of time spent on building each duration-bin of 60 minutes is ~ 20 million minutes.
+
+    The range is from 0 to 22500, with a maybe only a dozen between 22500 and 30000.
+
+"""
+
 
 def read_toys(toy_file, num_toys):
     """ Reads the toy file and returns a dictionary of Toys.
@@ -51,13 +65,32 @@ if __name__ == '__main__':
 
     toys = pd.read_csv('toys_rev2.csv')
     duration = toys['Duration']
-    p = duration.hist(bins=1000)
-    #plt.hist(duration, bins=35)
+    #p = duration.hist(bins=1000)
+    """
+    bins1=arange(0,2400,60)
+    bins2=arange(2400,30000,600)
+
+    binslist = list(bins1)
+    for i in bins2:
+        binslist.append(i)
+    """
+    binslist=arange(0, 30000, 60)
+    fullArray = binslist
+
+    values, bins, others = plt.hist(duration, bins=fullArray, log=True)
+    totalJobTime = ndarray(values.size)
+    totalJobTimeXAxis = ndarray(values.size)
+    for i in range(0, bins.size - 1, 1):
+        totalJobTime[i] = values[i] * (bins[i] + bins[i+1]) / 2.
+        totalJobTimeXAxis[i] = (bins[i] + bins[i+1]) / 2.
+
+
+
+    plt.plot(totalJobTimeXAxis, totalJobTime)
     plt.show()
 
-    print('End program')
+    print('End plotting')
 
-    """
     print('Beginning data exploration')
 
     start = time.time()
@@ -80,9 +113,9 @@ if __name__ == '__main__':
     for i in range(1, NUM_TOYS+1):
         myToy = myToys[str(i)]
         if myToy.duration >= 600:
-            toy_greater_than_600_count+=1
+            toy_greater_than_600_count += 1
         if myToy.duration >= 2400:
-            toy_greater_than_2400_count+=1
+            toy_greater_than_2400_count += 1
         if myToy.duration > max_toy_duration:
             max_toy_duration = myToy.duration
 
@@ -90,4 +123,3 @@ if __name__ == '__main__':
     print('num toys greater than 2400 : ' + str(toy_greater_than_2400_count))
     print('max duration : ' + str(max_toy_duration))
     print('total time = {0}'.format(time.time() - start))
-    """

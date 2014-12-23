@@ -25,7 +25,7 @@ class Hours:
         time = arrival.split(' ')
         dd = datetime.datetime(int(time[0]), int(time[1]), int(time[2]), int(time[3]), int(time[4]))
         age = dd - datetime.datetime(2014, 1, 1, 0, 0)
-        return int(age.total_seconds() / 60)
+        return int(age.total_seconds() // 60)
 
     def is_sanctioned_time(self, minute):
         """ Return boolean True or False if a given time (in minutes) is a sanctioned working day minute.  """
@@ -38,7 +38,7 @@ class Hours:
         :param duration:
         :return:
         """
-        full_days = duration / (self.minutes_in_24h)
+        full_days = duration // (self.minutes_in_24h)
         sanctioned = full_days * self.hours_per_day * 60
         unsanctioned = full_days * (24 - self.hours_per_day) * 60
         remainder_start = start_minute + full_days * self.minutes_in_24h
@@ -57,7 +57,7 @@ class Hours:
         # next minute is a sanctioned minute
         if self.is_sanctioned_time(minute) and self.is_sanctioned_time(minute+1):
             return minute + 1
-        num_days = minute / self.minutes_in_24h
+        num_days = minute // self.minutes_in_24h
         return self.day_start + (num_days + 1) * self.minutes_in_24h
 
     def apply_resting_period(self, start, num_unsanctioned):
@@ -71,9 +71,9 @@ class Hours:
         :return: next available minute after rest period has been applied. If rest period ends with the working day
                  returns the next morning at 9:00 am
         """
-        num_days_since_jan1 = start / self.minutes_in_24h
+        num_days_since_jan1 = start // self.minutes_in_24h
         rest_time = num_unsanctioned
-        rest_time_in_working_days = rest_time / (60 * self.hours_per_day)
+        rest_time_in_working_days = rest_time // (60 * self.hours_per_day)
         rest_time_remaining_minutes = rest_time % (60 * self.hours_per_day)
 
         # rest time is only applied to sanctioned work hours. If local_start is at an unsanctioned time,

@@ -1,8 +1,20 @@
-""" Simple solution to the Santa 2014 Kaggle competition evaluation metric. 
-This solution takes each toy in turn (in chronological order) and assigns the next
-available elf to it. """
-__author__ = 'Joyce Noah-Vanhoucke'
-__date__ = 'Novebmer 24, 2014'
+""" This solution uses Joyce Noah-Vanhoucke's naive solution as a template, but adds some different approaches.
+ This is my first time programming in python so this is also to help me learn it.
+
+  Algorithm in pseudo-code:
+
+  1. Each day load in all of the toys that will arrive that day, or have arrived before.
+  2. Split the toys into toys that can be finished today, and toys that cannot possibly be finished today.
+        Put the ones that cannot be finished today into a "todo" list for later.
+  3. Optimize it so the the most number of elves have the most full day possible.
+
+  this pattern should work well for all toys that take less than one full day (40 elf-hours (or 2400 elf-minutes)) for a 4.0 rated elf.
+
+  There's about 2 million toys that take more than 2400 elf-minutes. About 8 million toys that take less than 2400 elf-minutes.
+
+  """
+__author__ = 'Kevin Tao'
+__date__ = 'December 17, 2014'
 
 import os
 import csv
@@ -48,6 +60,9 @@ def assign_elf_to_toy(input_time, current_elf, current_toy, hrs):
         return hrs.apply_resting_period(start_time + duration, unsanctioned), duration
 
 
+
+
+
 def solution_firstAvailableElf(toy_file, soln_file, myelves):
     """ Creates a simple solution where the next available elf is assigned a toy. Elves do not start
     work outside of sanctioned hours.
@@ -68,13 +83,7 @@ def solution_firstAvailableElf(toy_file, soln_file, myelves):
             wcsv.writerow(['ToyId', 'ElfId', 'StartTime', 'Duration'])
 
             for row in toysfile:
-                row_count+=1
-
                 current_toy = Toy(row[0], row[1], row[2])
-
-                if row_count % 500 == 0:
-                    print ('Starting toy: {0}'.format(row_count))
-
 
                 # get next available elf
                 elf_available_time, current_elf = heapq.heappop(myelves)
@@ -114,7 +123,7 @@ if __name__ == '__main__':
     NUM_ELVES = 900
 
     toy_file = os.path.join(os.getcwd(), 'toys_rev2.csv')
-    soln_file = os.path.join(os.getcwd(), 'kevinSubmission.csv')
+    soln_file = os.path.join(os.getcwd(), 'sampleSubmission_rev2.csv')
 
     myelves = create_elves(NUM_ELVES)
     solution_firstAvailableElf(toy_file, soln_file, myelves)
