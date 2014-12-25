@@ -2,6 +2,7 @@ import datetime
 import math
 from hours import Hours
 
+
 class Toy:
     def __init__(self, toyid, arrival, duration):
         self.reference_start_time = datetime.datetime(2014, 1, 1, 0, 0)  # set when elf starts working on toy
@@ -12,7 +13,6 @@ class Toy:
 
     def outside_toy_start_period(self, start_minute):
         """ Checks that work on toy does not start outside of the allowed starting period.
-        :param hrs: Hours class
         :param start_minute: minute the work is scheduled to start
         :return: True of outside of allowed starting period, False otherwise
         """
@@ -26,7 +26,7 @@ class Toy:
         :return: Boolean
         """
         if self.duration / rating <= elf_duration:
-            self.completed_minute = start_minute + int(math.ceil(self.duration/rating))
+            self.completed_minute = start_minute + int(math.ceil(self.duration / rating))
             return True
         else:
             return False

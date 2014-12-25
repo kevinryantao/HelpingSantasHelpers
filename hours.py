@@ -92,3 +92,7 @@ class Hours:
 
         total_days = num_days_since_jan1 + rest_time_in_working_days
         return total_days * self.minutes_in_24h + local_start + rest_time_remaining_minutes
+
+    def minutes_left_in_sanctioned_day(self, start):
+        minutes_into_day = ((start - self.day_start) % self.minutes_in_24h)
+        return 60 * self.hours_per_day - minutes_into_day
