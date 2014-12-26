@@ -19,12 +19,12 @@ class BusyElvesHeap:
     def get_elves_for_min(self, elf_available_time):
         elves_for_min = []
 
-        while len(self.elf_heap) > 0 & self.elf_heap[0][1].next_available_time <= elf_available_time:
+        while len(self.elf_heap) > 0 and self.elf_heap[0][1].next_available_time <= elf_available_time:
             available_time, elf = heapq.heappop(self.elf_heap)
             elves_for_min.append(elf)
         return elves_for_min
 
-    def assign_toy_to_elf(self, elf, toy, work_start_time):
+    def assign_toy_to_elf(self, elf, toy, work_start_time, solution_writer):
         """
         :param elf:
         :param toy:
@@ -34,12 +34,9 @@ class BusyElvesHeap:
         elf.next_available_time, work_duration = self.calculate_next_available_and_duration(work_start_time, elf, toy,
                                                                                             self.hours)
         elf.update_elf(self.hours, toy, work_start_time, work_duration)
-        heapq.heappush(self.elf_heap, elf)
+        heapq.heappush(self.elf_heap, (elf.next_available_time, elf))
 
-        # return string
-        tt = self.ref_time + datetime.timedelta(seconds=60 * work_start_time)
-        time_string = " ".join([str(tt.year), str(tt.month), str(tt.day), str(tt.hour), str(tt.minute)])
-        return str([toy.id, elf.id, time_string, work_duration])
+        solution_writer.write(toy, elf, work_start_time, work_duration)
 
     @staticmethod
     def calculate_next_available_and_duration(input_time, current_elf, current_toy, hrs):

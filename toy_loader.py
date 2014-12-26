@@ -6,9 +6,9 @@ __author__ = 'ktao'
 
 class ToyLoader:
     def __init__(self, file_name):
-        with open(file_name) as f:
-            self.file = csv.reader(f)
-            next(self.file)  # header row
+        self.f = open(file_name)
+        self.file = csv.reader(self.f)
+        next(self.file)  # header row
         self.lastToy = None
         self.isDone = False
 
@@ -35,3 +35,6 @@ class ToyLoader:
 
     def done(self):
         return self.isDone
+
+    def close(self):
+        self.f.close()

@@ -15,6 +15,8 @@
   """
 from busy_elves_heap import BusyElvesHeap
 from elves_ready import ElvesReady
+from scheduler import Scheduler
+from solution_writer import SolutionWriter
 from toy_backlog import ToyBacklog
 from toy_loader import ToyLoader
 
@@ -43,18 +45,23 @@ def solution(toy_file, soln_file):
     :return:
     """
     hrs = Hours()
-    ref_time = datetime.datetime(2014, 1, 1, 0, 0)
 
     toy_loader = ToyLoader(toy_file)
+    solution_writer = SolutionWriter(soln_file)
     busy_elves_heap = BusyElvesHeap(900)
     toy_backlog = ToyBacklog()
     elves_ready = ElvesReady()
+    scheduler = Scheduler()
 
-    current_time = hrs.convert_to_minute(ref_time)
+    current_time = 540
 
-    while not toy_loader.done():
+    while not (toy_loader.done() and toy_backlog.done()):
+        if (toy_loader.done() and len(toy_backlog.easy_toy_list) == 0):
+            # clean up last toys
+            print("cleaning up final toys")
+
+
         # step 1 process newly arrived toys and fresh elves
-
         new_toy_orders = toy_loader.get_toys_up_to_minute(current_time)
         new_elves = busy_elves_heap.get_elves_for_min(current_time)
 
@@ -63,10 +70,14 @@ def solution(toy_file, soln_file):
 
         # step 2 pair off as many elves and toys as possible
 
-
-
+        scheduler.schedule(toy_backlog, elves_ready, busy_elves_heap, current_time, solution_writer)
 
         current_time = hrs.next_sanctioned_minute(current_time)
+
+
+
+    toy_loader.close()
+    solution_writer.close()
 
 
 
@@ -81,7 +92,7 @@ if __name__ == '__main__':
 
     NUM_ELVES = 900
 
-    toy_file = os.path.join(os.getcwd(), 'test_toys.csv')
+    toy_file = os.path.join(os.getcwd(), '75ktoys.csv')
     soln_file = os.path.join(os.getcwd(), 'test_sub.csv')
 
     solution(toy_file, soln_file)

@@ -27,6 +27,9 @@ class Hours:
         age = dd - datetime.datetime(2014, 1, 1, 0, 0)
         return int(age.total_seconds() // 60)
 
+    def is_start_of_day(self, current_time):
+        return current_time % (self.minutes_in_24h) == self.day_start
+
     def is_sanctioned_time(self, minute):
         """ Return boolean True or False if a given time (in minutes) is a sanctioned working day minute.  """
         return ((minute - self.day_start) % self.minutes_in_24h) < (self.hours_per_day * 60)

@@ -30,3 +30,16 @@ class Toy:
             return True
         else:
             return False
+
+    def penalty_assuming_4elf_and_max_sanctioned(self):
+        """
+        This calculates the penalty if for this toy if worked on by a 4.0 rating elf starting at the beginning of the day
+        :return:
+        """
+        time_taken = self.duration // 4
+        mod24hours = time_taken % (24 * 60)
+        whole_days = time_taken // (24 * 60)
+        sanctioned_min = whole_days * (10 * 60) + max(mod24hours, 10 * 60)
+        unsanctioned_min = time_taken - sanctioned_min
+        penalty = max(0.0625, (1.02 ** (sanctioned_min / 60.0)) * 0.9 ** (unsanctioned_min / 60.0))
+        return penalty

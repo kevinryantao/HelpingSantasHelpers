@@ -3,19 +3,42 @@ import datetime
 import math
 import bisect
 from sorted_collection import SortedCollection
-from operator import attrgetter
+from operator import attrgetter, methodcaller
 from hours import Hours
+
 
 class ToyBacklog:
     def __init__(self):
-        self.sorted_toy_list = SortedCollection(key=attrgetter('duration'))
+        self.rating_threshold = 3.95
+        self.easy_toy_list = SortedCollection(key=attrgetter('duration'))
+        self.easy_toy_duration_threshold = 10 * 60 * self.rating_threshold
+        self.constant_rating_list = []
+        self.constant_rating_threshold = 12 * 60 * 4
+        self.variable_toy_list = SortedCollection(key=methodcaller('penalty_assuming_4elf_and_max_sanctioned'))
+        self.variable_rating_threshold = 61.955 * 60 * 4
+        self.hardest_toy_list = SortedCollection(key=attrgetter('duration'))
 
-    def get_best_fit_toy(self, max_toy_duration):
-        return self.sorted_toy_list.find_le(max_toy_duration)
+    def get_best_fit_easy_toy(self, max_toy_duration):
+        try:
+            ret = self.easy_toy_list.find_le(max_toy_duration)
+        except ValueError:
+            ret = None
+        return ret
 
     def add_toy_to_backlog(self, toy):
-        return self.sorted_toy_list.insert(toy)
+        if toy.duration < self.easy_toy_duration_threshold:
+            self.easy_toy_list.insert(toy)
+        elif self.easy_toy_duration_threshold <= toy.duration <= self.constant_rating_threshold:
+            self.constant_rating_list.append(toy)
+        elif toy.duration <= self.variable_rating_threshold:
+            self.variable_toy_list.insert(toy)
+        else:
+            self.hardest_toy_list.insert(toy)
 
     def add_toys_to_backlog(self, toys):
         for toy in toys:
             self.add_toy_to_backlog(toy)
+
+    def done(self):
+        return len(self.easy_toy_list) == 0 and len(self.constant_rating_list) == 0 and len(
+            self.variable_toy_list) == 0 and len(self.hardest_toy_list) == 0
