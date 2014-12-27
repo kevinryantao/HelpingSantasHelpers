@@ -99,3 +99,8 @@ class Hours:
     def minutes_left_in_sanctioned_day(self, start):
         minutes_into_day = ((start - self.day_start) % self.minutes_in_24h)
         return 60 * self.hours_per_day - minutes_into_day
+
+    def get_time_string(self, minutes):
+        tt = self.reference_start_time + datetime.timedelta(seconds=60 * minutes)
+        time_string = " ".join([str(tt.year), str(tt.month), str(tt.day), str(tt.hour), str(tt.minute)])
+        return time_string

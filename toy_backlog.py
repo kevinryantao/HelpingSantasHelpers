@@ -1,3 +1,5 @@
+import heapq
+
 __author__ = 'ktao'
 import datetime
 import math
@@ -14,9 +16,9 @@ class ToyBacklog:
         self.easy_toy_duration_threshold = 10 * 60 * self.rating_threshold
         self.constant_rating_list = []
         self.constant_rating_threshold = 12 * 60 * 4
-        self.variable_toy_list = SortedCollection(key=methodcaller('penalty_assuming_4elf_and_max_sanctioned'))
+        self.variable_toy_list = []
         self.variable_rating_threshold = 61.955 * 60 * 4
-        self.hardest_toy_list = SortedCollection(key=attrgetter('duration'))
+        self.hardest_toy_list = []
 
     def get_best_fit_easy_toy(self, max_toy_duration):
         try:
@@ -31,13 +33,19 @@ class ToyBacklog:
         elif self.easy_toy_duration_threshold <= toy.duration <= self.constant_rating_threshold:
             self.constant_rating_list.append(toy)
         elif toy.duration <= self.variable_rating_threshold:
-            self.variable_toy_list.insert(toy)
+            heapq.heappush(self.variable_toy_list, (-1 * toy.penalty_assuming_4elf_and_max_sanctioned(), toy))
         else:
-            self.hardest_toy_list.insert(toy)
+            heapq.heappush(self.hardest_toy_list, (-1 * toy.duration, toy))
 
     def add_toys_to_backlog(self, toys):
         for toy in toys:
             self.add_toy_to_backlog(toy)
+
+    def pop_variable_toy(self):
+        return heapq.heappop(self.variable_toy_list)[1]
+
+    def pop_hardest_toy(self):
+        return heapq.heappop(self.hardest_toy_list)[1]
 
     def done(self):
         return len(self.easy_toy_list) == 0 and len(self.constant_rating_list) == 0 and len(

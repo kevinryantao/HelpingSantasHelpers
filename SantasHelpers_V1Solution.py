@@ -36,7 +36,7 @@ from elf import Elf
 
 # ========================================================================== #
 
-def solution(toy_file, soln_file):
+def solution(toy_file, soln_file, num_elves):
     """ Creates a simple solution where the next available elf is assigned a toy. Elves do not start
     work outside of sanctioned hours.
     :param toy_file: filename for toys file (input)
@@ -48,18 +48,20 @@ def solution(toy_file, soln_file):
 
     toy_loader = ToyLoader(toy_file)
     solution_writer = SolutionWriter(soln_file)
-    busy_elves_heap = BusyElvesHeap(900)
+    busy_elves_heap = BusyElvesHeap(num_elves)
     toy_backlog = ToyBacklog()
     elves_ready = ElvesReady()
     scheduler = Scheduler()
 
+    start = time.time()
+
     current_time = 540
 
-    while not (toy_loader.done() and toy_backlog.done()):
-        if (toy_loader.done() and len(toy_backlog.easy_toy_list) == 0):
-            # clean up last toys
-            print("cleaning up final toys")
+    toys_finished = 0
 
+    toys_left_at_end = []
+
+    while not (toy_loader.done() and toy_backlog.done() and len(toys_left_at_end) == 0):
 
         # step 1 process newly arrived toys and fresh elves
         new_toy_orders = toy_loader.get_toys_up_to_minute(current_time)
@@ -68,33 +70,53 @@ def solution(toy_file, soln_file):
         toy_backlog.add_toys_to_backlog(new_toy_orders)
         elves_ready.add_elves(new_elves)
 
-        # step 2 pair off as many elves and toys as possible
+        if (current_time % 30 == 0):
+            print('time taken = {0}, current_time = {1}'.format(time.time() - start, hrs.get_time_string(current_time)))
+            print('easy_toys:{0}\t constant_toys:{1}\t variable_toys:{2}\t hardest_toys:{3}'.format(
+                len(toy_backlog.easy_toy_list), len(toy_backlog.constant_rating_list),
+                len(toy_backlog.variable_toy_list), len(toy_backlog.hardest_toy_list)))
+            print('elves ready:{0}, high-perf-elves:{1}'.format(len(elves_ready.training_elf_list),
+                                                                len(elves_ready.high_performance_elf_list)))
+            print('toys finished = {0}'.format(toys_finished))
 
-        scheduler.schedule(toy_backlog, elves_ready, busy_elves_heap, current_time, solution_writer)
+        if (toy_loader.done() and len(toy_backlog.easy_toy_list) == 0) and len(toys_left_at_end) == 0:
+            for toy in toy_backlog.constant_rating_list:
+                toys_left_at_end.append(toy)
+            toy_backlog.constant_rating_list = []
+            while len(toy_backlog.variable_toy_list) > 0:
+                toys_left_at_end.append(toy_backlog.pop_variable_toy())
+            while len(toy_backlog.hardest_toy_list) > 0:
+                toys_left_at_end.append(toy_backlog.pop_hardest_toy())
+
+        if (toy_loader.done() and len(toys_left_at_end) > 0):
+            # clean up last toys
+            print("cleaning up final toys")
+            scheduler.clean_up(toys_left_at_end, elves_ready, busy_elves_heap, current_time, solution_writer)
+
+        else:
+            # step 2 pair off as many elves and toys as possible
+            toys_finished += scheduler.schedule(toy_backlog, elves_ready, busy_elves_heap, current_time,
+                                                solution_writer)
 
         current_time = hrs.next_sanctioned_minute(current_time)
 
-
-
     toy_loader.close()
     solution_writer.close()
-
 
 
 # ======================================================================= #
 # === MAIN === #
 
 if __name__ == '__main__':
-
-    print ('starting Naive Solution')
+    print('starting V1 Solution')
 
     start = time.time()
 
-    NUM_ELVES = 900
+    NUM_ELVES = 700
 
-    toy_file = os.path.join(os.getcwd(), '75ktoys.csv')
-    soln_file = os.path.join(os.getcwd(), 'test_sub.csv')
+    toy_file = os.path.join(os.getcwd(), 'toys_rev2.csv')
+    soln_file = os.path.join(os.getcwd(), 'submission ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
 
-    solution(toy_file, soln_file)
+    solution(toy_file, soln_file, NUM_ELVES)
 
-    print ('total runtime = {0}'.format(time.time() - start))
+    print('total runtime = {0}'.format(time.time() - start))

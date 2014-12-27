@@ -43,3 +43,9 @@ class Toy:
         unsanctioned_min = time_taken - sanctioned_min
         penalty = max(0.0625, (1.02 ** (sanctioned_min / 60.0)) * 0.9 ** (unsanctioned_min / 60.0))
         return penalty
+
+    def __lt__(self, other):
+        if (isinstance(other, Toy)):
+            return self.id < other.id
+        else:
+            return False

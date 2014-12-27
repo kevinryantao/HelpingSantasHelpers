@@ -5,6 +5,7 @@ from toy_backlog import ToyBacklog
 from toy_loader import ToyLoader
 from elves_ready import ElvesReady
 
+
 class Scheduler:
     def __init__(self):
         self.rating_threshold = 3.95
@@ -14,8 +15,10 @@ class Scheduler:
 
         minutes_left_in_day = self.hrs.minutes_left_in_sanctioned_day(current_time)
 
+        elves_toys_paired_off = 0
+
         # 1. check if < 3.95
-        #   a. calculate based on current_time what's the effective duration of toy that can be built
+        # a. calculate based on current_time what's the effective duration of toy that can be built
         #   b. if >3.28 calculate based on rating, how much time left to become 4
         #       based on min of those two numbers find toy that's the best fit
         #       find if that toy has a better fit
@@ -27,10 +30,11 @@ class Scheduler:
             toy = self.get_toy(minutes_left_in_day, toy_backlog)
             if toy is not None:
                 # pair off the elf and toy
-                line = busy_elves_heap.assign_toy_to_elf(elf, toy, current_time, solution_writer)
-                solution_writer.write_line(line)
+                busy_elves_heap.assign_toy_to_elf(elf, toy, current_time, solution_writer)
+
                 # remove the elf and toy
                 elves_ready.remove_from_high_performance_list(elf)
+                elves_toys_paired_off += 1
             else:
                 elves_ready.training_elf_list.insert(elf)
                 elves_ready.remove_from_high_performance_list(elf)
@@ -38,7 +42,7 @@ class Scheduler:
         for elf in elves_ready.training_elf_list[:]:
 
             if (elf.rating > 3.28) and (elf.rating < self.rating_threshold):
-                target_toy_duration = self.calculate_minutes_to_fully_train(elf)
+                target_toy_duration = min(self.calculate_minutes_to_fully_train(elf), minutes_left_in_day * elf.rating)
             else:
                 target_toy_duration = minutes_left_in_day * elf.rating
 
@@ -51,25 +55,66 @@ class Scheduler:
 
                 # pair off the elf and toy
                 busy_elves_heap.assign_toy_to_elf(elf, toy, current_time, solution_writer)
+                elves_toys_paired_off += 1
 
-        return None
+                #if elves_toys_paired_off == 0 and len(elves_ready.training_elf_list) > 499:
+                #   print("No elves or toys paired")
+                #  for elf in elves_ready.training_elf_list[:]:
+                #     print('elf id:{0}, elf rating:{1}'.format(elf.id, elf.rating))
+                #for toy in toy_backlog.easy_toy_list[:]:
+                #   print('toy id:{0}, toy duration:{1}'.format(toy.id, toy.duration))
+
+        return elves_toys_paired_off
 
 
+    def clean_up(self, toys_left_at_end, elves_ready, busy_elves_heap, current_time, solution_writer):
+        # this is the situation where there's no more new toys, and no more easy toys.
+        length_of_toy_backlog = len(toys_left_at_end)
+        length_of_ready_elves = len(elves_ready.high_performance_elf_list) + len(elves_ready.training_elf_list)
+        elves = []
+        for elf in elves_ready.training_elf_list:
+            elves.append(elf)
+        for elf in elves_ready.high_performance_elf_list:
+            elves.append(elf)
+        toys = toys_left_at_end[:]
+
+        num_pairs = min(len(elves), len(toys))
+        for i in range(0, num_pairs - 1):
+            elf = elves[len(elves) - num_pairs + i]
+            toy = toys[len(toys) - num_pairs + i]
+            self.remove_elf(elf, elves_ready)
+            toys_left_at_end.remove(toy)
+            # pair off the elf and toy
+            busy_elves_heap.assign_toy_to_elf(elf, toy, current_time, solution_writer)
 
     def get_toy(self, minutes_left_in_day, toy_backlog):
         if minutes_left_in_day > 540:
             if len(toy_backlog.constant_rating_list) > 0:
                 return toy_backlog.constant_rating_list.pop()
             elif len(toy_backlog.variable_toy_list) > 0:
-                return toy_backlog.variable_toy_list.pop()
+                return toy_backlog.pop_variable_toy()
         if len(toy_backlog.hardest_toy_list) > 0:
-                return toy_backlog.hardest_toy_list.pop()
+            return toy_backlog.pop_hardest_toy()
         return None
+
+    def remove_elf(self, elf, elves_ready):
+        if elves_ready.training_elf_list.__contains__(elf):
+            elves_ready.remove_from_training_list(elf)
+        elif elves_ready.high_performance_elf_list.__contains__(elf):
+            elves_ready.remove_from_high_performance_list(elf)
+
+    def remove_toy(self, toy, toy_backlog):
+        if toy_backlog.constant_rating_list.__contains__(toy):
+            toy_backlog.constant_rating_list.remove(toy)
+        elif toy_backlog.variable_toy_list.__contains__(toy):
+            toy_backlog.variable_toy_list.remove(toy)
+        elif toy_backlog.hardest_toy_list.__contains__(toy):
+            toy_backlog.hardest_toy_list.remove(toy)
 
     @staticmethod
     def calculate_minutes_to_fully_train(elf):
         multiplier_needed = 4.0 / elf.rating
-        actual_minutes_needed = math.log(multiplier_needed) / math.log(1.02 / 60)
+        actual_minutes_needed = (math.log(multiplier_needed) / math.log(1.02)) * 60
         return actual_minutes_needed * elf.rating
 
 
