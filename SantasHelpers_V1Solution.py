@@ -36,7 +36,7 @@ from elf import Elf
 
 # ========================================================================== #
 
-def solution(toy_file, soln_file, num_elves):
+def solution(toy_file, soln_file, num_elves, TARGET):
     """ Creates a simple solution where the next available elf is assigned a toy. Elves do not start
     work outside of sanctioned hours.
     :param toy_file: filename for toys file (input)
@@ -51,7 +51,7 @@ def solution(toy_file, soln_file, num_elves):
     busy_elves_heap = BusyElvesHeap(num_elves)
     toy_backlog = ToyBacklog()
     elves_ready = ElvesReady()
-    scheduler = Scheduler()
+    scheduler = Scheduler(TARGET)
 
     start = time.time()
 
@@ -72,7 +72,7 @@ def solution(toy_file, soln_file, num_elves):
         toy_backlog.add_toys_to_backlog(new_toy_orders)
         elves_ready.add_elves(new_elves)
 
-        if (current_time % 120 == 0):
+        if (current_time % 120 == 60):
             print('time taken = {0}, current_time = {1}'.format(time.time() - start, hrs.get_time_string(current_time)))
             print('easy_toys:{0},\t constant_toys:{1},\t variable_toys:{2},\t hardest_toys:{3}'.format(
                 len(toy_backlog.easy_toy_list), len(toy_backlog.constant_rating_list),
@@ -116,15 +116,18 @@ def solution(toy_file, soln_file, num_elves):
 # === MAIN === #
 
 if __name__ == '__main__':
-    print('starting V1 Solution')
 
     start = time.time()
 
     NUM_ELVES = 800
 
-    toy_file = os.path.join(os.getcwd(), 'toys_rev2.csv')
-    soln_file = os.path.join(os.getcwd(), 'submission ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
+    TARGET = 1.0
 
-    solution(toy_file, soln_file, NUM_ELVES)
+    print('starting V1 Solution submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
+
+    toy_file = os.path.join(os.getcwd(), 'toys_rev2.csv')
+    soln_file = os.path.join(os.getcwd(), 'submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
+
+    solution(toy_file, soln_file, NUM_ELVES, TARGET)
 
     print('total runtime = {0}'.format(time.time() - start))
