@@ -10,8 +10,9 @@ class Scheduler:
     def __init__(self):
         self.rating_threshold = 3.95
         self.hrs = hours.Hours()
+        self.target_for_hardest = 0.6
 
-    def schedule(self, toy_backlog, elves_ready, busy_elves_heap, current_time, solution_writer):
+    def schedule(self, toy_backlog, elves_ready, busy_elves_heap, current_time, solution_writer, toy_loader):
 
         minutes_left_in_day = self.hrs.minutes_left_in_sanctioned_day(current_time)
 
@@ -27,7 +28,7 @@ class Scheduler:
             # if it's the start of the day, then go for constants first, then variables
             # else do hardest toys if available
             # else put self in training list and pick up old jobs there.
-            toy = self.get_toy(minutes_left_in_day, toy_backlog)
+            toy = self.get_toy_for_4rating(minutes_left_in_day, toy_backlog, toy_loader)
             if toy is not None:
                 # pair off the elf and toy
                 busy_elves_heap.assign_toy_to_elf(elf, toy, current_time, solution_writer)
@@ -35,18 +36,24 @@ class Scheduler:
                 # remove the elf and toy
                 elves_ready.remove_from_high_performance_list(elf)
                 elves_toys_paired_off += 1
-            else:
-                elves_ready.training_elf_list.insert(elf)
-                elves_ready.remove_from_high_performance_list(elf)
 
         for elf in elves_ready.training_elf_list[:]:
 
-            if (elf.rating > 3.28) and (elf.rating < self.rating_threshold):
-                target_toy_duration = min(self.calculate_minutes_to_fully_train(elf), minutes_left_in_day * elf.rating)
-            else:
-                target_toy_duration = minutes_left_in_day * elf.rating
+            if len(toy_backlog.hardest_toy_list) > 0:
 
-            toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
+                if elf.rating > self.target_for_hardest and elf.rating < self.target_for_hardest:
+                    toy = self.get_hardest_toys(toy_backlog)
+                else:
+                    target_toy_duration = min(self.calculate_minutes_to_train_to_target(elf), minutes_left_in_day * elf.rating)
+                    toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
+
+            else:
+                if (elf.rating > 3.28) and (elf.rating < self.rating_threshold):
+                    target_toy_duration = min(self.calculate_minutes_to_fully_train(elf), minutes_left_in_day * elf.rating)
+                else:
+                    target_toy_duration = minutes_left_in_day * elf.rating
+
+                toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
 
             if toy is not None:
                 # remove the elf and toy
@@ -87,15 +94,19 @@ class Scheduler:
             # pair off the elf and toy
             busy_elves_heap.assign_toy_to_elf(elf, toy, current_time, solution_writer)
 
-    def get_toy(self, minutes_left_in_day, toy_backlog):
-        if minutes_left_in_day > 540:
+    def get_toy_for_4rating(self, minutes_left_in_day, toy_backlog, toy_loader):
+        if minutes_left_in_day > 599:
             if len(toy_backlog.constant_rating_list) > 0:
                 return toy_backlog.constant_rating_list.pop()
             elif len(toy_backlog.variable_toy_list) > 0:
                 return toy_backlog.pop_variable_toy()
+            if toy_loader.done():
+                return toy_backlog.get_best_fit_easy_toy(2400)
+        return None
+
+    def get_hardest_toys(self, toy_backlog):
         if len(toy_backlog.hardest_toy_list) > 0:
             return toy_backlog.pop_hardest_toy()
-        return None
 
     def remove_elf(self, elf, elves_ready):
         if elves_ready.training_elf_list.__contains__(elf):
@@ -114,6 +125,14 @@ class Scheduler:
     @staticmethod
     def calculate_minutes_to_fully_train(elf):
         multiplier_needed = 4.0 / elf.rating
+        actual_minutes_needed = (math.log(multiplier_needed) / math.log(1.02)) * 60
+        return actual_minutes_needed * elf.rating
+
+    def calculate_minutes_to_train_to_target(self, elf):
+        if(elf.rating >= self.target_for_hardest):
+            return 0
+
+        multiplier_needed = self.target_for_hardest / elf.rating
         actual_minutes_needed = (math.log(multiplier_needed) / math.log(1.02)) * 60
         return actual_minutes_needed * elf.rating
 

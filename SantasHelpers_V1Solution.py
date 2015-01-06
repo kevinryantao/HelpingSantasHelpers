@@ -61,6 +61,8 @@ def solution(toy_file, soln_file, num_elves):
 
     toys_left_at_end = []
 
+    time_of_last_toy_assigned = 0
+
     while not (toy_loader.done() and toy_backlog.done() and len(toys_left_at_end) == 0):
 
         # step 1 process newly arrived toys and fresh elves
@@ -79,7 +81,10 @@ def solution(toy_file, soln_file, num_elves):
                                                                 len(elves_ready.high_performance_elf_list)))
             print('toys finished = {0}'.format(toys_finished))
 
-        if (toy_loader.done() and len(toy_backlog.easy_toy_list) == 0) and len(toys_left_at_end) == 0:
+        if (toy_loader.done() and current_time - time_of_last_toy_assigned > 1440 and elves_ready.training_elf_list == num_elves and len(toys_left_at_end) == 0):
+            for toy in toy_backlog.easy_toy_list:
+                toys_left_at_end.append(toy)
+            toy_backlog.easy_toy_list.clear()
             for toy in toy_backlog.constant_rating_list:
                 toys_left_at_end.append(toy)
             toy_backlog.constant_rating_list = []
@@ -95,8 +100,11 @@ def solution(toy_file, soln_file, num_elves):
 
         else:
             # step 2 pair off as many elves and toys as possible
-            toys_finished += scheduler.schedule(toy_backlog, elves_ready, busy_elves_heap, current_time,
-                                                solution_writer)
+            toys_newly_finished = scheduler.schedule(toy_backlog, elves_ready, busy_elves_heap, current_time,
+                                                solution_writer, toy_loader)
+            toys_finished += toys_newly_finished
+            if (toys_newly_finished > 0):
+                time_of_last_toy_assigned = current_time
 
         current_time = hrs.next_sanctioned_minute(current_time)
 
@@ -112,7 +120,7 @@ if __name__ == '__main__':
 
     start = time.time()
 
-    NUM_ELVES = 700
+    NUM_ELVES = 800
 
     toy_file = os.path.join(os.getcwd(), 'toys_rev2.csv')
     soln_file = os.path.join(os.getcwd(), 'submission ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
