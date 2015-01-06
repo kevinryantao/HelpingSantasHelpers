@@ -55,7 +55,7 @@ def solution(toy_file, soln_file, num_elves, TARGET):
 
     start = time.time()
 
-    current_time = 482940
+    current_time = 497340
 
     print("Getting initial toys")
     print('time taken = {0}, current_time = {1}'.format(time.time() - start, hrs.get_time_string(current_time)))
@@ -72,7 +72,7 @@ def solution(toy_file, soln_file, num_elves, TARGET):
 
     toys_left_at_end = []
 
-    time_of_last_toy_assigned = 0
+    time_of_last_toy_assigned = current_time
 
     while not (toy_loader.done() and toy_backlog.done() and len(toys_left_at_end) == 0):
 
@@ -92,7 +92,7 @@ def solution(toy_file, soln_file, num_elves, TARGET):
                                                                 len(elves_ready.high_performance_elf_list)))
             print('toys finished = {0}'.format(toys_finished))
 
-        if (toy_loader.done() and current_time - time_of_last_toy_assigned > 1440 and len(elves_ready.training_elf_list) == num_elves and len(toys_left_at_end) == 0):
+        if (toy_loader.done() and current_time - time_of_last_toy_assigned > 2880 and len(elves_ready.training_elf_list) == num_elves and len(toys_left_at_end) == 0):
             print("starting cleanup")
             for toy in toy_backlog.easy_toy_list:
                 toys_left_at_end.append(toy)
@@ -132,7 +132,7 @@ if __name__ == '__main__':
 
     NUM_ELVES = 800
 
-    TARGET = 0.5
+    TARGET = 1.0
 
     print('starting V1 Solution submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
 
