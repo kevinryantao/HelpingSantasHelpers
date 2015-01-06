@@ -14,6 +14,8 @@ class ToyLoader:
 
     def get_toys_up_to_minute(self, minute):
         toys = []
+        if self.isDone:
+            return toys
         if self.lastToy is not None:
             if self.lastToy.arrival_minute <= minute:
                 toys.append(self.lastToy)

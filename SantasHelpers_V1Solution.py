@@ -49,13 +49,24 @@ def solution(toy_file, soln_file, num_elves, TARGET):
     toy_loader = ToyLoader(toy_file)
     solution_writer = SolutionWriter(soln_file)
     busy_elves_heap = BusyElvesHeap(num_elves)
-    toy_backlog = ToyBacklog()
+
     elves_ready = ElvesReady()
     scheduler = Scheduler(TARGET)
 
     start = time.time()
 
-    current_time = 540
+    current_time = 482940
+
+    print("Getting initial toys")
+    print('time taken = {0}, current_time = {1}'.format(time.time() - start, hrs.get_time_string(current_time)))
+    new_toy_orders = toy_loader.get_toys_up_to_minute(current_time)
+
+    print("Loading initial toys into backlog")
+    print('time taken = {0}, current_time = {1}'.format(time.time() - start, hrs.get_time_string(current_time)))
+    toy_backlog = ToyBacklog(new_toy_orders)
+
+    print("Finished initializing toys into backlog")
+    print('time taken = {0}, current_time = {1}'.format(time.time() - start, hrs.get_time_string(current_time)))
 
     toys_finished = 0
 
@@ -74,14 +85,15 @@ def solution(toy_file, soln_file, num_elves, TARGET):
 
         if (current_time % 120 == 60):
             print('time taken = {0}, current_time = {1}'.format(time.time() - start, hrs.get_time_string(current_time)))
-            print('easy_toys:{0},\t constant_toys:{1},\t variable_toys:{2},\t hardest_toys:{3}'.format(
+            print('easy_toys:{0},\t constant_toys:{1},\t variable_toys:{2},\t hardest_toys:{3},\t toys_left_at_end:{4}'.format(
                 len(toy_backlog.easy_toy_list), len(toy_backlog.constant_rating_list),
-                len(toy_backlog.variable_toy_list), len(toy_backlog.hardest_toy_list)))
+                len(toy_backlog.variable_toy_list), len(toy_backlog.hardest_toy_list), len(toys_left_at_end)))
             print('elves ready:{0}, high-perf-elves:{1}'.format(len(elves_ready.training_elf_list),
                                                                 len(elves_ready.high_performance_elf_list)))
             print('toys finished = {0}'.format(toys_finished))
 
-        if (toy_loader.done() and current_time - time_of_last_toy_assigned > 1440 and elves_ready.training_elf_list == num_elves and len(toys_left_at_end) == 0):
+        if (toy_loader.done() and current_time - time_of_last_toy_assigned > 1440 and len(elves_ready.training_elf_list) == num_elves and len(toys_left_at_end) == 0):
+            print("starting cleanup")
             for toy in toy_backlog.easy_toy_list:
                 toys_left_at_end.append(toy)
             toy_backlog.easy_toy_list.clear()
@@ -95,8 +107,7 @@ def solution(toy_file, soln_file, num_elves, TARGET):
 
         if (toy_loader.done() and len(toys_left_at_end) > 0):
             # clean up last toys
-            print("cleaning up final toys")
-            scheduler.clean_up(toys_left_at_end, elves_ready, busy_elves_heap, current_time, solution_writer)
+            toys_finished += scheduler.clean_up(toys_left_at_end, elves_ready, busy_elves_heap, current_time, solution_writer)
 
         else:
             # step 2 pair off as many elves and toys as possible
@@ -121,7 +132,7 @@ if __name__ == '__main__':
 
     NUM_ELVES = 800
 
-    TARGET = 1.0
+    TARGET = 0.5
 
     print('starting V1 Solution submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
 

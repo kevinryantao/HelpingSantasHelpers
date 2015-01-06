@@ -88,15 +88,19 @@ class Scheduler:
         for elf in elves_ready.high_performance_elf_list:
             elves.append(elf)
         toys = toys_left_at_end[:]
+        elves_toys_paired_off = 0
 
         num_pairs = min(len(elves), len(toys))
-        for i in range(0, num_pairs - 1):
+        for i in range(0, num_pairs):
             elf = elves[len(elves) - num_pairs + i]
             toy = toys[len(toys) - num_pairs + i]
             self.remove_elf(elf, elves_ready)
             toys_left_at_end.remove(toy)
             # pair off the elf and toy
             busy_elves_heap.assign_toy_to_elf(elf, toy, current_time, solution_writer)
+            elves_toys_paired_off += 1
+
+        return elves_toys_paired_off
 
     def get_toy_for_4rating(self, minutes_left_in_day, toy_backlog, toy_loader):
         if minutes_left_in_day > 599:

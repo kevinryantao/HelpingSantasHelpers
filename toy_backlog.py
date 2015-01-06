@@ -10,15 +10,27 @@ from hours import Hours
 
 
 class ToyBacklog:
-    def __init__(self):
+    def __init__(self, initial_toys):
         self.rating_threshold = 3.95
-        self.easy_toy_list = SortedCollection(key=attrgetter('duration'))
         self.easy_toy_duration_threshold = 8.5 * 60 * self.rating_threshold
         self.constant_rating_list = []
         self.constant_rating_threshold = 12 * 60 * 4
         self.variable_toy_list = []
         self.variable_rating_threshold = 61.955 * 60 * 4
         self.hardest_toy_list = []
+        easy_toy_temp_list = []
+        for toy in initial_toys:
+            if toy.duration < self.easy_toy_duration_threshold:
+                easy_toy_temp_list.append(toy)
+            elif self.easy_toy_duration_threshold <= toy.duration <= self.constant_rating_threshold:
+                self.constant_rating_list.append(toy)
+            elif toy.duration <= self.variable_rating_threshold:
+                self.variable_toy_list.append((-1 * toy.penalty_assuming_4elf_and_max_sanctioned(), toy))
+            else:
+                self.hardest_toy_list.append((-1 * toy.duration, toy))
+        self.easy_toy_list = SortedCollection(iterable=easy_toy_temp_list, key=attrgetter('duration'))
+        heapq.heapify(self.variable_toy_list)
+        heapq.heapify(self.hardest_toy_list)
 
     def get_best_fit_easy_toy(self, max_toy_duration):
         try:
