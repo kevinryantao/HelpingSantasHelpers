@@ -72,9 +72,9 @@ def solution(toy_file, soln_file, num_elves):
         toy_backlog.add_toys_to_backlog(new_toy_orders)
         elves_ready.add_elves(new_elves)
 
-        if (current_time % 30 == 0):
+        if (current_time % 120 == 0):
             print('time taken = {0}, current_time = {1}'.format(time.time() - start, hrs.get_time_string(current_time)))
-            print('easy_toys:{0}\t constant_toys:{1}\t variable_toys:{2}\t hardest_toys:{3}'.format(
+            print('easy_toys:{0},\t constant_toys:{1},\t variable_toys:{2},\t hardest_toys:{3}'.format(
                 len(toy_backlog.easy_toy_list), len(toy_backlog.constant_rating_list),
                 len(toy_backlog.variable_toy_list), len(toy_backlog.hardest_toy_list)))
             print('elves ready:{0}, high-perf-elves:{1}'.format(len(elves_ready.training_elf_list),
