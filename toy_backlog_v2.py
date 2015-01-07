@@ -13,7 +13,7 @@ from hours import Hours
 class ToyBacklogV2:
     def __init__(self, initial_toys):
         self.rating_threshold = 3.95
-        self.easy_toy_duration_threshold = 8.5 * 60 * self.rating_threshold
+        self.easy_toy_duration_threshold = 10 * 60 * self.rating_threshold
         self.constant_rating_list = []
         self.constant_rating_threshold = 12 * 60 * 4
         self.variable_toy_list = []
