@@ -52,7 +52,7 @@ def solution(toy_file, soln_file, num_elves, TARGET):
     busy_elves_heap = BusyElvesHeap(num_elves)
 
     elves_ready = ElvesReady()
-    scheduler = Scheduler(TARGET)
+    scheduler = Scheduler(TARGET, num_elves)
 
     start = time.time()
 
@@ -135,7 +135,7 @@ if __name__ == '__main__':
 
     NUM_ELVES = 900
 
-    TARGET = 1.0
+    TARGET = 0.5
 
     print('starting v3 Solution submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
 

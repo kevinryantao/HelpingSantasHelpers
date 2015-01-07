@@ -7,11 +7,12 @@ from elves_ready import ElvesReady
 
 
 class Scheduler:
-    def __init__(self, TARGET):
+    def __init__(self, TARGET, num_elves):
         self.rating_threshold = 3.95
         self.hrs = hours.Hours()
         self.target_for_hardest = TARGET
         self.focus_on_hardest = False
+        self.num_elves = num_elves
 
     def schedule(self, toy_backlog, elves_ready, busy_elves_heap, current_time, solution_writer, toy_loader):
 
@@ -45,7 +46,18 @@ class Scheduler:
 
         for elf in elves_ready.training_elf_list[:]:
             hard_toy = False
-            if self.focus_on_hardest and len(toy_backlog.hardest_toy_list) > 0:
+            toy = None
+            if toy_backlog.get_best_fit_easy_toy(600*self.target_for_hardest) is None and len(toy_backlog.constant_rating_list) == 0 and elf.rating < self.target_for_hardest*1.2:
+                if len(toy_backlog.hardest_toy_list) > 0:
+                    toy = self.get_hardest_toys(toy_backlog)
+                    hard_toy = True
+                elif len(toy_backlog.variable_toy_list) > 0:
+                    toy = toy_backlog.pop_variable_toy()
+                    hard_toy = True
+                elif toy_backlog.easy_toy_list.size > 0:
+                    toy = toy_backlog.pop_best_fit_easy_toy(2400)
+                    hard_toy = True
+            elif self.focus_on_hardest and len(toy_backlog.hardest_toy_list) > 0 and len(toy_backlog.constant_rating_list) == 0:
                 if self.target_for_hardest <= elf.rating:
                     toy = self.get_hardest_toys(toy_backlog)
                     hard_toy = True
@@ -53,17 +65,31 @@ class Scheduler:
                     target_toy_duration = minutes_left_in_day * elf.rating
                     toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
             elif len(toy_backlog.hardest_toy_list) > 0 and len(toy_backlog.constant_rating_list) == 0:
-                if self.target_for_hardest <= elf.rating < self.target_for_hardest * 1.2:
+                if self.target_for_hardest <= elf.rating and (elf.rating < self.target_for_hardest * 1.2 or elf.id <= self.num_elves * .96):
                     toy = self.get_hardest_toys(toy_backlog)
                     hard_toy = True
                 elif elf.rating > self.target_for_hardest * 1.2:
-                    target_toy_duration = minutes_left_in_day * elf.rating
-                    toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
-                    if toy is not None and toy.duration < 540 * self.target_for_hardest:
+                    if minutes_left_in_day > 400:
+                        target_toy_duration = minutes_left_in_day * elf.rating
+                        toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
+                    else:
                         toy = None
                 else:
                     target_toy_duration = minutes_left_in_day * elf.rating
                     toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
+            elif self.focus_on_hardest and len(toy_backlog.hardest_toy_list) == 0 and len(toy_backlog.variable_toy_list) > 0:
+                if self.target_for_hardest <= elf.rating:
+                    toy = toy_backlog.pop_variable_toy()
+                    hard_toy = True
+                else:
+                    target_toy_duration = minutes_left_in_day * elf.rating
+                    toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
+            elif len(toy_backlog.hardest_toy_list) == 0 and len(toy_backlog.variable_toy_list) > 0:
+                if minutes_left_in_day > 500:
+                    target_toy_duration = minutes_left_in_day * elf.rating
+                    toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
+                else:
+                    toy = None
 
             else:
                 target_toy_duration = minutes_left_in_day * elf.rating
@@ -130,6 +156,7 @@ class Scheduler:
     def get_hardest_toys(self, toy_backlog):
         if len(toy_backlog.hardest_toy_list) > 0:
             return toy_backlog.pop_hardest_toy()
+        return None
 
     def remove_elf(self, elf, elves_ready):
         if elves_ready.training_elf_list.__contains__(elf):

@@ -49,11 +49,22 @@ class ToyBacklogV2:
     def focus_on_hardest(self, target):
         if self.should_focus_on_hardest:
             return True
-        if self.easy_toy_list.array_of_index_pointers[2400] < 600 * target:
+        toy = self.easy_toy_list.peek_at_best_fit_easy_toy(2000)
+        if toy is not None and toy.duration < 600 * target:
             self.should_focus_on_hardest = True
-            print("Focus on hardest!")
+            print("Depleted from 900 to 600 * target!")
+            self.reheapify_variable_list_max_duration()
+            print("Reheapifying Variable List")
             return True
         return False
+
+    def reheapify_variable_list_max_duration(self):
+        new_variable_list = []
+        for tuple in self.variable_toy_list:
+            toy = tuple[1]
+            new_variable_list.append((-1 * toy.duration, toy))
+        self.variable_toy_list = new_variable_list
+        heapq.heapify(self.variable_toy_list)
 
     def done(self):
         return self.easy_toy_list.size == 0 and len(self.constant_rating_list) == 0 and len(

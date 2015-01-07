@@ -80,7 +80,7 @@ if __name__ == '__main__':
     print('Finished reading all toys.')
     print('total time = {0}'.format(time.time() - start))
 
-    submission_file = os.path.join(os.getcwd(), 'v2 submission target 1.0  900 elves 1420597845.228775.csv')
+    submission_file = os.path.join(os.getcwd(), 'v3 submission target 0.5  900 elves 1420653828.63084.csv')
 
     myMissingToys = remove_built_toys(myToys, submission_file)
 
