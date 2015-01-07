@@ -18,6 +18,7 @@ from elves_ready import ElvesReady
 from scheduler import Scheduler
 from solution_writer import SolutionWriter
 from toy_backlog import ToyBacklog
+from toy_backlog_v2 import ToyBacklogV2
 from toy_loader import ToyLoader
 
 __author__ = 'Kevin Tao'
@@ -63,7 +64,7 @@ def solution(toy_file, soln_file, num_elves, TARGET):
 
     print("Loading initial toys into backlog")
     print('time taken = {0}, current_time = {1}'.format(time.time() - start, hrs.get_time_string(current_time)))
-    toy_backlog = ToyBacklog(new_toy_orders)
+    toy_backlog = ToyBacklogV2(new_toy_orders)
 
     print("Finished initializing toys into backlog")
     print('time taken = {0}, current_time = {1}'.format(time.time() - start, hrs.get_time_string(current_time)))
@@ -77,16 +78,14 @@ def solution(toy_file, soln_file, num_elves, TARGET):
     while not (toy_loader.done() and toy_backlog.done() and len(toys_left_at_end) == 0):
 
         # step 1 process newly arrived toys and fresh elves
-        new_toy_orders = toy_loader.get_toys_up_to_minute(current_time)
         new_elves = busy_elves_heap.get_elves_for_min(current_time)
 
-        toy_backlog.add_toys_to_backlog(new_toy_orders)
         elves_ready.add_elves(new_elves)
 
         if (current_time % 120 == 60):
             print('time taken = {0}, current_time = {1}'.format(time.time() - start, hrs.get_time_string(current_time)))
             print('easy_toys:{0},\t constant_toys:{1},\t variable_toys:{2},\t hardest_toys:{3},\t toys_left_at_end:{4}'.format(
-                len(toy_backlog.easy_toy_list), len(toy_backlog.constant_rating_list),
+                toy_backlog.easy_toy_list.size, len(toy_backlog.constant_rating_list),
                 len(toy_backlog.variable_toy_list), len(toy_backlog.hardest_toy_list), len(toys_left_at_end)))
             print('elves ready:{0}, high-perf-elves:{1}'.format(len(elves_ready.training_elf_list),
                                                                 len(elves_ready.high_performance_elf_list)))
@@ -94,7 +93,7 @@ def solution(toy_file, soln_file, num_elves, TARGET):
 
         if (toy_loader.done() and current_time - time_of_last_toy_assigned > 2880 and len(elves_ready.training_elf_list) == num_elves and len(toys_left_at_end) == 0):
             print("starting cleanup")
-            for toy in toy_backlog.easy_toy_list:
+            for toy in toy_backlog.easy_toy_list.all_toys():
                 toys_left_at_end.append(toy)
             toy_backlog.easy_toy_list.clear()
             for toy in toy_backlog.constant_rating_list:
@@ -136,8 +135,8 @@ if __name__ == '__main__':
 
     print('starting V1 Solution submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
 
-    toy_file = os.path.join(os.getcwd(), 'toys_rev2.csv')
-    soln_file = os.path.join(os.getcwd(), 'submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
+    toy_file = os.path.join(os.getcwd(), '75ktoys.csv')
+    soln_file = os.path.join(os.getcwd(), 'test toy backlog submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
 
     solution(toy_file, soln_file, NUM_ELVES, TARGET)
 

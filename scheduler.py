@@ -39,20 +39,15 @@ class Scheduler:
 
         for elf in elves_ready.training_elf_list[:]:
             hard_toy = False
-            if len(toy_backlog.hardest_toy_list) > 0 and len(toy_backlog.variable_toy_list) == 0:
-                if self.target_for_hardest <= elf.rating :
-                    if minutes_left_in_day == 600:
-                        target_toy_duration = min(self.calculate_minutes_to_fully_train(elf), minutes_left_in_day * elf.rating)
-                        toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
-                        if target_toy_duration - toy.duration > 60 :
-                            toy = self.get_hardest_toys(toy_backlog)
-                            hard_toy = True
-                    elif minutes_left_in_day <= 10:
-                        target_toy_duration = minutes_left_in_day * elf.rating
-                        toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
-                    elif not hard_toy:
+            if len(toy_backlog.hardest_toy_list) > 0 :
+                if len(toy_backlog.hardest_toy_list) > 0:
+                    if self.target_for_hardest <= elf.rating < self.target_for_hardest * 1.1:
                         toy = self.get_hardest_toys(toy_backlog)
                         hard_toy = True
+                    else:
+                        target_toy_duration = min(self.calculate_minutes_to_fully_train(elf), minutes_left_in_day * elf.rating)
+                        toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
+
                 else:
                     target_toy_duration = minutes_left_in_day * elf.rating
                     toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
@@ -69,7 +64,7 @@ class Scheduler:
                 # remove the elf and toy
                 elves_ready.remove_from_training_list(elf)
                 if not hard_toy:
-                    toy_backlog.easy_toy_list.remove(toy)
+                    toy = toy_backlog.pop_best_fit_easy_toy(toy.duration)
 
                 # pair off the elf and toy
                 busy_elves_heap.assign_toy_to_elf(elf, toy, current_time, solution_writer)
@@ -121,7 +116,7 @@ class Scheduler:
             target_toy_duration = minutes_left_in_day * 4
             toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
             if toy.duration > 520 / self.target_for_hardest:
-                toy_backlog.easy_toy_list.remove(toy)
+                toy = toy_backlog.pop_best_fit_easy_toy(target_toy_duration)
                 return toy
         return None
 
