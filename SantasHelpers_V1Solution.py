@@ -91,6 +91,9 @@ def solution(toy_file, soln_file, num_elves, TARGET):
                                                                 len(elves_ready.high_performance_elf_list)))
             print('toys finished = {0}'.format(toys_finished))
 
+        if len(elves_ready.training_elf_list) + len(elves_ready.high_performance_elf_list) == 0:
+            continue
+
         if (toy_loader.done() and current_time - time_of_last_toy_assigned > 2880 and len(elves_ready.training_elf_list) == num_elves and len(toys_left_at_end) == 0):
             print("starting cleanup")
             for toy in toy_backlog.easy_toy_list.all_toys():
@@ -131,12 +134,12 @@ if __name__ == '__main__':
 
     NUM_ELVES = 900
 
-    TARGET = 0.5
+    TARGET = 1.0
 
-    print('starting v2 Solution submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
+    print('starting v3 Solution submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
 
     toy_file = os.path.join(os.getcwd(), 'toys_rev2.csv')
-    soln_file = os.path.join(os.getcwd(), 'v2 submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
+    soln_file = os.path.join(os.getcwd(), 'v3 submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
 
     solution(toy_file, soln_file, NUM_ELVES, TARGET)
 

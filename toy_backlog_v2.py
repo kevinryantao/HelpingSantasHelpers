@@ -32,6 +32,7 @@ class ToyBacklogV2:
         self.easy_toy_list = EasyToyBacklog(easy_toy_temp_list)
         heapq.heapify(self.variable_toy_list)
         heapq.heapify(self.hardest_toy_list)
+        self.should_focus_on_hardest = False
 
     def get_best_fit_easy_toy(self, max_toy_duration):
         return self.easy_toy_list.peek_at_best_fit_easy_toy(max_toy_duration)
@@ -44,6 +45,14 @@ class ToyBacklogV2:
 
     def pop_hardest_toy(self):
         return heapq.heappop(self.hardest_toy_list)[1]
+
+    def should_focus_on_hardest(self, target):
+        if self.should_focus_on_hardest:
+            return True
+        if self.easy_toy_list.array_of_index_pointers[2400] < 600 * target:
+            self.should_focus_on_hardest = True
+            return True
+        return False
 
     def done(self):
         return self.easy_toy_list.size == 0 and len(self.constant_rating_list) == 0 and len(

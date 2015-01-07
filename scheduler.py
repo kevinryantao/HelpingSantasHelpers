@@ -11,10 +11,13 @@ class Scheduler:
         self.rating_threshold = 3.95
         self.hrs = hours.Hours()
         self.target_for_hardest = TARGET
+        self.focus_on_hardest = False
 
     def schedule(self, toy_backlog, elves_ready, busy_elves_heap, current_time, solution_writer, toy_loader):
 
         minutes_left_in_day = self.hrs.minutes_left_in_sanctioned_day(current_time)
+
+        self.focus_on_hardest = toy_backlog.should_focus_on_hardest(self.target_for_hardest)
 
         elves_toys_paired_off = 0
 
@@ -28,7 +31,10 @@ class Scheduler:
             # if it's the start of the day, then go for constants first, then variables
             # else do hardest toys if available
             # else put self in training list and pick up old jobs there.
-            toy = self.get_toy_for_4rating(minutes_left_in_day, toy_backlog, toy_loader)
+            if self.focus_on_hardest and len(toy_backlog.hardest_toy_list) > 0:
+                toy = self.get_hardest_toys(toy_backlog)
+            else:
+                toy = self.get_toy_for_4rating(minutes_left_in_day, toy_backlog, toy_loader)
             if toy is not None:
                 # pair off the elf and toy
                 busy_elves_heap.assign_toy_to_elf(elf, toy, current_time, solution_writer)
@@ -39,15 +45,22 @@ class Scheduler:
 
         for elf in elves_ready.training_elf_list[:]:
             hard_toy = False
-            if len(toy_backlog.hardest_toy_list) > 0 :
-                if len(toy_backlog.hardest_toy_list) > 0:
-                    if self.target_for_hardest <= elf.rating < self.target_for_hardest * 1.1:
-                        toy = self.get_hardest_toys(toy_backlog)
-                        hard_toy = True
-                    else:
-                        target_toy_duration = minutes_left_in_day * elf.rating
-                        toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
-
+            if self.focus_on_hardest and len(toy_backlog.hardest_toy_list) > 0:
+                if self.target_for_hardest <= elf.rating:
+                    toy = self.get_hardest_toys(toy_backlog)
+                    hard_toy = True
+                else:
+                    target_toy_duration = minutes_left_in_day * elf.rating
+                    toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
+            elif len(toy_backlog.hardest_toy_list) > 0 and len(toy_backlog.constant_rating_list) == 0:
+                if self.target_for_hardest <= elf.rating < self.target_for_hardest * 1.1:
+                    toy = self.get_hardest_toys(toy_backlog)
+                    hard_toy = True
+                elif elf.rating > self.target_for_hardest * 1.1:
+                    target_toy_duration = minutes_left_in_day * elf.rating
+                    toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
+                    if toy.duration < 540 * self.target_for_hardest:
+                        toy = None
                 else:
                     target_toy_duration = minutes_left_in_day * elf.rating
                     toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
@@ -90,10 +103,9 @@ class Scheduler:
 
         num_pairs = min(len(elves), len(toys))
         for i in range(0, num_pairs):
-            elf = elves[len(elves) - num_pairs + i]
-            toy = toys[len(toys) - num_pairs + i]
+            elf = elves.pop()
+            toy = toys.pop()
             self.remove_elf(elf, elves_ready)
-            toys_left_at_end.remove(toy)
             # pair off the elf and toy
             busy_elves_heap.assign_toy_to_elf(elf, toy, current_time, solution_writer)
             elves_toys_paired_off += 1

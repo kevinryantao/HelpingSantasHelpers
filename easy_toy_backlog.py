@@ -42,12 +42,12 @@ class EasyToyBacklog:
             return None
 
     def all_toys(self):
-        all = []
+        all_toys_to_return = []
         for i in range(0, len(self.array_of_toys)):
-            list = self.array_of_toys[i]
-            for toy in list:
-                all.append(toy)
-        return all
+            myList = self.array_of_toys[i]
+            for toy in myList:
+                all_toys_to_return.append(toy)
+        return all_toys_to_return
 
     def clear(self):
         for i in range(0, len(self.array_of_toys)):
