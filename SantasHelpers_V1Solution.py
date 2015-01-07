@@ -91,7 +91,8 @@ def solution(toy_file, soln_file, num_elves, TARGET):
                                                                 len(elves_ready.high_performance_elf_list)))
             print('toys finished = {0}'.format(toys_finished))
 
-        if len(elves_ready.training_elf_list) + len(elves_ready.high_performance_elf_list) == 0:
+        if (len(elves_ready.training_elf_list) + len(elves_ready.high_performance_elf_list)) == 0:
+            current_time = hrs.next_sanctioned_minute(current_time)
             continue
 
         if (toy_loader.done() and current_time - time_of_last_toy_assigned > 2880 and len(elves_ready.training_elf_list) == num_elves and len(toys_left_at_end) == 0):

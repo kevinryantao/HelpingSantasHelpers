@@ -17,7 +17,7 @@ class Scheduler:
 
         minutes_left_in_day = self.hrs.minutes_left_in_sanctioned_day(current_time)
 
-        self.focus_on_hardest = toy_backlog.should_focus_on_hardest(self.target_for_hardest)
+        self.focus_on_hardest = toy_backlog.focus_on_hardest(self.target_for_hardest)
 
         elves_toys_paired_off = 0
 
@@ -53,13 +53,13 @@ class Scheduler:
                     target_toy_duration = minutes_left_in_day * elf.rating
                     toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
             elif len(toy_backlog.hardest_toy_list) > 0 and len(toy_backlog.constant_rating_list) == 0:
-                if self.target_for_hardest <= elf.rating < self.target_for_hardest * 1.1:
+                if self.target_for_hardest <= elf.rating < self.target_for_hardest * 1.2:
                     toy = self.get_hardest_toys(toy_backlog)
                     hard_toy = True
-                elif elf.rating > self.target_for_hardest * 1.1:
+                elif elf.rating > self.target_for_hardest * 1.2:
                     target_toy_duration = minutes_left_in_day * elf.rating
                     toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
-                    if toy.duration < 540 * self.target_for_hardest:
+                    if toy is not None and toy.duration < 540 * self.target_for_hardest:
                         toy = None
                 else:
                     target_toy_duration = minutes_left_in_day * elf.rating
@@ -98,13 +98,12 @@ class Scheduler:
             elves.append(elf)
         for elf in elves_ready.high_performance_elf_list:
             elves.append(elf)
-        toys = toys_left_at_end[:]
         elves_toys_paired_off = 0
 
-        num_pairs = min(len(elves), len(toys))
+        num_pairs = min(len(elves), len(toys_left_at_end))
         for i in range(0, num_pairs):
             elf = elves.pop()
-            toy = toys.pop()
+            toy = toys_left_at_end.pop()
             self.remove_elf(elf, elves_ready)
             # pair off the elf and toy
             busy_elves_heap.assign_toy_to_elf(elf, toy, current_time, solution_writer)

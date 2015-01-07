@@ -15,11 +15,13 @@ class EasyToyBacklog:
         return self.size
 
     def verify_target_duration(self, max_toy_duration, target_duration):
-        while target_duration > 0 and len(self.array_of_toys[target_duration]) == 0:
-            target_duration -= 1
-        for i in range(target_duration, max_toy_duration + 1):
-            self.array_of_index_pointers[i] = target_duration
-        return target_duration
+        new_target_duration = target_duration
+        while new_target_duration > 0 and len(self.array_of_toys[new_target_duration]) == 0:
+            new_target_duration -= 1
+        if new_target_duration != target_duration:
+            for i in range(new_target_duration, max_toy_duration + 1):
+                self.array_of_index_pointers[i] = new_target_duration
+        return new_target_duration
 
     def peek_at_best_fit_easy_toy(self, max_toy_duration):
         max_toy_duration = int(max_toy_duration)

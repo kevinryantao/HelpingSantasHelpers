@@ -46,11 +46,12 @@ class ToyBacklogV2:
     def pop_hardest_toy(self):
         return heapq.heappop(self.hardest_toy_list)[1]
 
-    def should_focus_on_hardest(self, target):
+    def focus_on_hardest(self, target):
         if self.should_focus_on_hardest:
             return True
         if self.easy_toy_list.array_of_index_pointers[2400] < 600 * target:
             self.should_focus_on_hardest = True
+            print("Focus on hardest!")
             return True
         return False
 
