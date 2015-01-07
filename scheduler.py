@@ -45,7 +45,7 @@ class Scheduler:
                         toy = self.get_hardest_toys(toy_backlog)
                         hard_toy = True
                     else:
-                        target_toy_duration = min(self.calculate_minutes_to_fully_train(elf), minutes_left_in_day * elf.rating)
+                        target_toy_duration = minutes_left_in_day * elf.rating
                         toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
 
                 else:
@@ -53,11 +53,7 @@ class Scheduler:
                     toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
 
             else:
-                if (elf.rating > 3.28) and (elf.rating < self.rating_threshold):
-                    target_toy_duration = min(self.calculate_minutes_to_fully_train(elf), minutes_left_in_day * elf.rating)
-                else:
-                    target_toy_duration = minutes_left_in_day * elf.rating
-
+                target_toy_duration = minutes_left_in_day * elf.rating
                 toy = toy_backlog.get_best_fit_easy_toy(target_toy_duration)
 
             if toy is not None:

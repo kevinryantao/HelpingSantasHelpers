@@ -129,14 +129,14 @@ if __name__ == '__main__':
 
     start = time.time()
 
-    NUM_ELVES = 800
+    NUM_ELVES = 900
 
-    TARGET = 1.0
+    TARGET = 0.5
 
-    print('starting V1 Solution submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
+    print('starting v2 Solution submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
 
-    toy_file = os.path.join(os.getcwd(), '75ktoys.csv')
-    soln_file = os.path.join(os.getcwd(), 'test toy backlog submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
+    toy_file = os.path.join(os.getcwd(), 'toys_rev2.csv')
+    soln_file = os.path.join(os.getcwd(), 'v2 submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
 
     solution(toy_file, soln_file, NUM_ELVES, TARGET)
 
