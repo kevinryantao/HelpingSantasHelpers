@@ -135,12 +135,12 @@ if __name__ == '__main__':
 
     NUM_ELVES = 900
 
-    TARGET = 0.5
+    TARGET = 0.4
 
-    print('starting v3 Solution submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
+    print('starting v6 Solution submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
 
     toy_file = os.path.join(os.getcwd(), 'toys_rev2.csv')
-    soln_file = os.path.join(os.getcwd(), 'v3 submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
+    soln_file = os.path.join(os.getcwd(), 'v6 submission target ' + str(TARGET) + '  ' + str(NUM_ELVES) + ' elves ' + str(start) + '.csv')
 
     solution(toy_file, soln_file, NUM_ELVES, TARGET)
 
